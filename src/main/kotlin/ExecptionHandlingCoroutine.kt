@@ -8,16 +8,22 @@ fun main() = runBlocking {
     val job = launch {
         try {
             repeat(1000) {
-                yield()
+                yield() // throws exception that is being handled in catch
                 print(".")
                 Thread.sleep(10.milliseconds.toLongMilliseconds())
             }
         } catch (ex: CancellationException) {
             println()
-            println("Cancelled")
+            println("Cancelled: ${ex.message}")
+        } finally {
+            run {
+                println()
+                println("In finally")
+            }
         }
     }
 
-    delay(2.5.seconds.toLongMilliseconds())
-    job.cancelAndJoin()
+    delay(1.seconds.toLongMilliseconds())
+    job.cancel(CancellationException("Too many jobs"))
+    job.join()
 }
